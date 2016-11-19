@@ -16,9 +16,10 @@
 /*
  * Custom HwComposer module for HiSilicon based devices
  *
- * Copyright Eduardo Alonso 2016
- * Based on 1.4 HwC
-
+ * Copyright (C) 2016 Eduardo Alonso
+ * Copyright (C) 2016 Honor8Dev
+ * Based on 1.0 HwC
+ *
  * This software is licensed under the terms of the GNU General Public
  * License version 2, as published by the Free Software Foundation, and
  * may be copied, distributed, and modified under those terms.
@@ -79,6 +80,7 @@ static int
 hwc_set(hwc_composer_device_1_t *dev, size_t numDisplays,
 	hwc_display_contents_1_t ** displays)
 {
+    ATRACE_CALL();
     if (!numDisplays || !displays)
 	return 0;
 
@@ -119,8 +121,7 @@ hwc_eventControl(struct hwc_composer_device_1 *dev, int disp, int event, int ena
     return ret;
 }
 
-/*
-I read that it isn't necessary in 1.4
+
 static int
 hwc_blank (struct hwc_composer_device_1 *dev, int disp, int blank)
 {
@@ -132,7 +133,7 @@ hwc_blank (struct hwc_composer_device_1 *dev, int disp, int blank)
     ret = ioctl(ctx->fb0, FBIOBLANK, arg);
     return ret;
 }
-*/
+
 static int
 hwc_query(struct hwc_composer_device_1* dev, int what, int *value)
 {
@@ -238,7 +239,7 @@ hwc_setActiveConfig(struct hwc_composer_device_1* dev, int disp, int index)
 {
     return 0;
 }
-
+/* Will be uncommented at 1.4
 static int
 hwc_setPowerMode(struct hwc_composer_device_1* dev, int disp, int mode)
 {
@@ -267,7 +268,7 @@ hwc_setPowerMode(struct hwc_composer_device_1* dev, int disp, int mode)
 
  return ret;
 }
-
+*/
 
 static struct hw_module_methods_t hwc_module_methods = {
   .open = hwc_device_open
@@ -298,25 +299,24 @@ hwc_device_open(const struct hw_module_t *module, const char *name, struct hw_de
 
     //Setup the methods
     ctx->device.common.tag = HARDWARE_DEVICE_TAG;
-    ctx->device.common.version = HWC_DEVICE_API_VERSION_1_4;
+    ctx->device.common.version = HWC_DEVICE_API_VERSION_1_0;
     ctx->device.common.module = (struct hw_module_t *) module;
     ctx->device.common.close = hwc_device_close;
     ctx->device.prepare = hwc_prepare;
     ctx->device.set = hwc_set;
     ctx->device.eventControl = hwc_eventControl;
-//    ctx->device.blank = hwc_blank;
+    ctx->device.blank = hwc_blank;
     ctx->device.query = hwc_query;
     ctx->device.dump = hwc_dump;
     ctx->device.getDisplayConfigs = hwc_getDisplayConfigs;
     ctx->device.getDisplayAttributes = hwc_getDisplayAttributes;
     ctx->device.getActiveConfig     = hwc_getActiveConfig;
     ctx->device.setActiveConfig = hwc_setActiveConfig;
-    ctx->device.setPowerMode = hwc_setPowerMode;
+//    ctx->device.setPowerMode = hwc_setPowerMode;
 
     *device = &ctx->device.common;
 
     ALOGD("Loading HwComposer...");
-    ALOGD("XePeleato was here.");
     //FB Comms.
     ctx->fb0 = open("/dev/graphics/fb0", O_RDWR);
     if (ioctl(ctx->fb0, FBIOGET_VSCREENINFO, &ctx->vinfo) != 0) 
