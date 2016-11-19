@@ -4,11 +4,15 @@
 #include <hardware/hardware.h>
 #include <linux/fb.h>
 #include <sys/ioctl.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/prctl.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <malloc.h>
 #include <cutils/atomic.h>
 #include <utils/Trace.h>
+#include <utils/threads.h>
 #include <hardware/hwcomposer.h>
 #include <EGL/egl.h>
 //#include <ion/ion.h>
@@ -29,22 +33,6 @@
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  */
-
-#define to_ctx(dev) ((hwc_context_t *)dev)
-
-#undef LOG_TAG
-#define LOG_TAG "HisiHwcomposer"
-
-struct hwc_context_t {
-    hwc_composer_device_1_t device;
-    int fb0;
-    struct fb_var_screeninfo vinfo;
-    struct fb_fix_screeninfo finfo;
-    float xdpi = ((float)(vinfo.xres) * 25.4f) / (float)(vinfo.width);
-    float ydpi = ((float)(vinfo.yres) * 25.4f) / (float)(vinfo.height);
-};
-
-
 
 static int
 hwc_device_open(const struct hw_module_t *module, const char *name, struct hw_device_t **device);
@@ -108,11 +96,16 @@ hwc_eventControl(struct hwc_composer_device_1 *dev, int disp, int event, int ena
 
     switch (event) {
 	case HWC_EVENT_VSYNC:
+	    if (ctx->vstate.enabled == enabled)
+		break;
+
 	    if(ioctl(ctx->fb0, HISIFB_VSYNC_CTRL, &enabled) < 0) {
 		ALOGE("%s: vsync ctrl failed! enabled=%d : %s", __func__, enabled, strerror(errno));
 		ret = -1;
 	    }
-	    ALOGD ("VSYNC changed to %d\n", enabled);
+	    else 
+		ctx->vstate.enabled = true;
+
 	    break; 
 
 	default:
@@ -129,7 +122,6 @@ hwc_blank (struct hwc_composer_device_1 *dev, int disp, int blank)
     int ret, arg;
 
     arg = blank ? FB_BLANK_POWERDOWN : FB_BLANK_UNBLANK;
-
     ret = ioctl(ctx->fb0, FBIOBLANK, arg);
     return ret;
 }
@@ -270,6 +262,16 @@ hwc_setPowerMode(struct hwc_composer_device_1* dev, int disp, int mode)
 }
 */
 
+static void
+hwc_registerProcs(struct hwc_composer_device_1* dev,
+	hwc_procs_t const* procs)
+{
+    ALOGE("Registering procs");
+    hwc_context_t* ctx = to_ctx(dev);
+    ctx->proc = procs;
+    hisi_vsync_start(ctx);//Start vsync thread.
+}
+
 static struct hw_module_methods_t hwc_module_methods = {
   .open = hwc_device_open
 };
@@ -313,6 +315,7 @@ hwc_device_open(const struct hw_module_t *module, const char *name, struct hw_de
     ctx->device.getActiveConfig     = hwc_getActiveConfig;
     ctx->device.setActiveConfig = hwc_setActiveConfig;
 //    ctx->device.setPowerMode = hwc_setPowerMode;
+    ctx->device.registerProcs = hwc_registerProcs;
 
     *device = &ctx->device.common;
 
