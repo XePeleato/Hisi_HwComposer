@@ -1,7 +1,7 @@
 #ifndef HWC_H
 #define HWC_H
 #define HISIFB_IOCTL_MAGIC 'M'
-#define HISIFB_VSYNC_CTRL _IOW(HISIFB_IOCTL_MAGIC, 0x01, unsigned int)
+#define HISIFB_VSYNC_CTRL _IOW(HISIFB_IOCTL_MAGIC, 0x02, unsigned int)
 
 #define to_ctx(dev) ((hwc_context_t *)dev)
 
