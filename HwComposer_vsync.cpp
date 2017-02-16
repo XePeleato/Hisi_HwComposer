@@ -1,23 +1,13 @@
-#include <gralloc.h>
-#include <gralloc_priv.h>
-#include <hwcomposer.h>
-#include <cutils/log.h>
-#include <hardware/hardware.h>
+#include <hardware/hwcomposer.h>
 #include <linux/fb.h>
-#include <sys/ioctl.h>
+#include <cutils/log.h>
 #include <sys/time.h>
 #include <sys/resource.h>
 #include <sys/prctl.h>
-#include <errno.h>
-#include <fcntl.h>
-#include <malloc.h>
-#include <cutils/atomic.h>
 #include <utils/Trace.h>
 #include <utils/threads.h>
-#include <hardware/hwcomposer.h>
-#include <EGL/egl.h>
-//#include <ion/ion.h>
 #include "hwc_helper.h"
+#include <unistd.h>
 
 static inline void
 *hisi_vsync(void *dev)
