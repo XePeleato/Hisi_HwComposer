@@ -1,5 +1,4 @@
-#include <gralloc.h>
-#include <hwcomposer.h>
+#include <hardware/hwcomposer.h>
 #include <cutils/log.h>
 #include <hardware/hardware.h>
 #include <linux/fb.h>
