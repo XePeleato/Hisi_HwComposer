@@ -24,24 +24,28 @@ static inline void
     setpriority(PRIO_PROCESS, 0, HAL_PRIORITY_URGENT_DISPLAY +
                 android::PRIORITY_MORE_FAVORABLE);
     int fd = open("sys/class/graphics/fb0/vsync_timestamp", O_RDONLY);
-    ALOGE("Just read vsync_event");
-    if (fd < 0) 
-        ALOGE("Error opening Vsync timestamp file!");
+    ALOGD("Just opened vsync_event");
+    if (fd < 0) {
+        ALOGW("Using fake vsync...");
+	do {
+	    ctx->proc->vsync(ctx->proc, HWC_DISPLAY_PRIMARY, systemTime());
+	    usleep(16666);
+	} while (true);
+    } else {
+	do {
+	    ssize_t len = pread(fd, vdata, MAX_DATA -1, 0);
+	    if (len < 0)
+		ALOGE("Error reading vsync timestamp!");
 
-    do {	
-        ssize_t len = pread(fd, vdata, MAX_DATA -1, 0);
-        if (len < 0)
-            ALOGE("Error reading vsync timestamp!");
-
-            cur_timestamp = strtoull(vdata, NULL, 0);
+	    cur_timestamp = strtoull(vdata, NULL, 0);
 	    if (cur_timestamp != last_timestamp)
 	    {
-		uint64_t fake_timestamp = systemTime();
 		ctx->proc->vsync(ctx->proc, HWC_DISPLAY_PRIMARY, cur_timestamp);
 		last_timestamp = cur_timestamp;//Avoid sending duplicated timestamps
 	    }
 
-    } while (true);
+	} while (true);
+    }
     if(fd >= 0)
         close (fd);
 }
