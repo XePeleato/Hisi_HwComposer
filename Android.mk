@@ -1,7 +1,7 @@
 # This software is licensed under the terms of the GNU General Public
-# License version 2, as published by the Free Software Foundation, and
+# License version 3, as published by the Free Software Foundation, and
 # may be copied, distributed, and modified under those terms.
-# 
+#
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -12,10 +12,9 @@ include $(CLEAR_VARS)
 
 LOCAL_MODULE := hwcomposer.$(TARGET_BOARD_PLATFORM)
 LOCAL_MODULE_RELATIVE_PATH := hw/
-LOCAL_SRC_FILES :=HwComposer.cpp HwComposer_vsync.cpp
+LOCAL_SRC_FILES := HwComposer.cpp HwComposer_vsync.cpp
 LOCAL_SHARED_LIBRARIES := liblog libcutils libutils libEGL
 
 LOCAL_CFLAGS := -Wno-unused-parameter
 
 include $(BUILD_SHARED_LIBRARY)
-

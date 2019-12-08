@@ -73,7 +73,7 @@ hwc_set(hwc_composer_device_1_t *dev, size_t numDisplays,
 
     int ret = 0;
     hwc_context_t *ctx = to_ctx(dev);
-    
+
     hwc_display_contents_1_t *pdis_cont = displays[HWC_DISPLAY_PRIMARY];
     hwc_display_contents_1_t *xdis_cont = displays[HWC_DISPLAY_EXTERNAL];
 
@@ -102,10 +102,10 @@ hwc_eventControl(struct hwc_composer_device_1 *dev, int disp, int event, int ena
 		ALOGE("%s: vsync ctrl failed! enabled=%d : %s", __func__, enabled, strerror(errno));
 		ret = -1;
 	    }
-	    else 
+	    else
 		ctx->vstate.enabled = true;
 
-	    break; 
+	    break;
 
 	default:
 	    return -EINVAL;
@@ -153,12 +153,12 @@ hwc_dump(struct hwc_composer_device_1 *dev, char *buff, int buff_len)
 }
 
 static int
-hwc_getDisplayConfigs(struct hwc_composer_device_1* dev, int disp, 
+hwc_getDisplayConfigs(struct hwc_composer_device_1* dev, int disp,
     uint32_t* configs, size_t* numConfigs) {
 
     int ret = 0;
     hwc_context_t* ctx = to_ctx(dev);
-    
+
     if (*numConfigs == 0)
 	return 0;
 
@@ -166,7 +166,7 @@ hwc_getDisplayConfigs(struct hwc_composer_device_1* dev, int disp,
 	case HWC_DISPLAY_PRIMARY:
 	    configs[0] = 0;
 	    *numConfigs = 1;
-    
+
 	ret = 0;
 	break;
 	case HWC_DISPLAY_EXTERNAL:
@@ -268,7 +268,7 @@ hwc_registerProcs(struct hwc_composer_device_1* dev,
     ALOGE("Registering procs");
     hwc_context_t* ctx = to_ctx(dev);
     ctx->proc = procs;
-    hisi_vsync_start(ctx);//Start vsync thread.
+    hisi_vsync_start(ctx); //Start vsync thread.
 }
 
 static struct hw_module_methods_t hwc_module_methods = {
@@ -321,7 +321,7 @@ hwc_device_open(const struct hw_module_t *module, const char *name, struct hw_de
     ALOGD("Loading HwComposer...");
     //FB Comms.
     ctx->fb0 = open("/dev/graphics/fb0", O_RDWR);
-    if (ioctl(ctx->fb0, FBIOGET_VSCREENINFO, &ctx->vinfo) != 0) 
+    if (ioctl(ctx->fb0, FBIOGET_VSCREENINFO, &ctx->vinfo) != 0)
 	ALOGE("Error reading FB info!");
 
     if (ioctl(ctx->fb0, FBIOGET_FSCREENINFO, &ctx->finfo) != 0)
