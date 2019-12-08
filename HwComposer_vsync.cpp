@@ -41,7 +41,7 @@ static inline void
 	    if (cur_timestamp != last_timestamp)
 	    {
 		ctx->proc->vsync(ctx->proc, HWC_DISPLAY_PRIMARY, cur_timestamp);
-		last_timestamp = cur_timestamp;//Avoid sending duplicated timestamps
+		last_timestamp = cur_timestamp; //Avoid sending duplicated timestamps
 	    }
 
 	} while (true);
@@ -61,4 +61,3 @@ hisi_vsync_start(hwc_context_t* ctx)
     if (ret)
         ALOGE("Failed to create VSYNC's pthread!");
 }
-
